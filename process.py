@@ -6,10 +6,9 @@ from googleapiclient.http import MediaFileUpload
 
 url = os.environ["VIDEO_URL"]
 N, L = 6, 45  # 6 clips, 45 sec each
-subprocess.run(["yt-dlp", "-f", "mp4", "-o", "src.mp4", url], check=True)
-dur = float(subprocess.check_output(
-    ["ffprobe","-v","error","-show_entries","format=duration",
-     "-of","csv=p=0","src.mp4"]))
+if "youtube.com" in url or "youtu.be" in url:
+    raise SystemExit("YouTube links are blocked on GitHub. Use a Dropbox link.")
+subprocess.run(["curl", "-L", "-f", "-o", "src.mp4", url], check=True)
 step = max((dur - L) / N, 1)
 for i in range(N):
     subprocess.run(["ffmpeg","-y","-ss",str(i*step),"-t",str(L),
