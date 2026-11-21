@@ -5,7 +5,14 @@ on:
   workflow_dispatch:
     inputs:
       url:
+        description: "Direct video link"
         required: true
+      title:
+        description: "Title"
+        required: false
+      tags:
+        description: "Hashtags, comma se alag"
+        required: false
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -15,12 +22,17 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: |
-          sudo apt-get install -y ffmpeg
-          pip install yt-dlp google-api-python-client google-auth
-      - run: python process.py
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+          pip install google-api-python-client google-auth
+      - name: Make and upload shorts
+        run: python process.py
         env:
           VIDEO_URL: ${{ github.event.client_payload.url || inputs.url }}
+          VIDEO_TITLE: ${{ github.event.client_payload.title || inputs.title }}
+          VIDEO_TAGS: ${{ github.event.client_payload.tags || inputs.tags }}
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
           REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
